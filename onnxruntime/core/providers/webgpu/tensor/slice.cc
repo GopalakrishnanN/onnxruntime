@@ -158,6 +158,8 @@ Status Slice::ComputeInternal(ComputeContext& context) const {
     if (val < 0) {
       val += input_rank;
     }
+    ORT_RETURN_IF(val < 0 || val >= static_cast<int64_t>(input_rank),
+                  "Axis value ", axes_raw[i], " is out of range for input rank ", input_rank);
     axes_fixed.push_back(static_cast<int32_t>(val));
     axes.push_back(static_cast<int32_t>(val));
   }
