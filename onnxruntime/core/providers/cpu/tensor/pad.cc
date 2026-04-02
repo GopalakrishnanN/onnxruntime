@@ -457,11 +457,17 @@ static Status PadImpl(OpKernelContext* ctx,
     effective_input_extents.push_back(extent);
     reshaped_output_dims[i] += SafeInt<int64_t>(reshaped_pad[i]) + reshaped_pad[i + new_dims_count] +
                                reshaped_slice[i] + reshaped_slice[i + new_dims_count];
+    ORT_RETURN_IF(reshaped_output_dims[i] < 0,
+                  "Output dimension ", i, " is negative (", reshaped_output_dims[i],
+                  "). This may occur from excessive negative padding/slicing.");
   }
 
   // Compute true output dimensions
   for (size_t i = 0; i < data_rank; i++) {
     output_dims[i] += SafeInt<int64_t>(pads[i]) + pads[i + data_rank] + slices[i] + slices[i + data_rank];
+    ORT_RETURN_IF(output_dims[i] < 0,
+                  "Output dimension ", i, " is negative (", output_dims[i],
+                  "). This may occur from excessive negative padding/slicing.");
   }
 
   // If the input is empty, but output shape may not be, need padding only

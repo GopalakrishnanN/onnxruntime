@@ -741,7 +741,15 @@ export class ShapeUtil {
    */
   static padShape(dims: readonly number[], pad: readonly number[]): readonly number[] {
     const rank = dims.length;
-    return dims.map((v, i) => v + pad[i] + pad[i + rank]);
+    return dims.map((v, i) => {
+      const nextDim = v + pad[i] + pad[i + rank];
+      if (nextDim < 0) {
+        throw new Error(
+          `Output dimension ${i} is negative (${nextDim}). This may occur from excessive negative padding.`,
+        );
+      }
+      return nextDim;
+    });
   }
 
   /**

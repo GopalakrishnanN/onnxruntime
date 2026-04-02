@@ -206,6 +206,9 @@ Status Slice::ComputeInternal(ComputeContext& context) const {
     }
     auto temp = static_cast<int64_t>(ceil(1.0 * (end - start) / static_cast<float>(step)));
     output_dims[axes[i]] = (temp > 0 && dim_value != 0) ? temp : 0;
+    ORT_RETURN_IF(output_dims[axes[i]] < 0,
+                  "Output dimension ", axes[i], " is negative (", output_dims[axes[i]],
+                  "). This may occur from excessive negative slicing.");
   }
 
   // insert missing dimensions

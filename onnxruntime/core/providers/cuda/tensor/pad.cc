@@ -250,6 +250,9 @@ Status Pad<T>::ComputeInternal(OpKernelContext* ctx) const {
     lower_pads[i] = SafeInt<int64_t>((*p_pads)[i]) + (*p_slices)[i];
     upper_pads[i] = SafeInt<int64_t>((*p_pads)[i + dimension_count]) + (*p_slices)[i + dimension_count];
     output_dims[i] += SafeInt<int64_t>(lower_pads[i]) + upper_pads[i];
+    ORT_RETURN_IF(output_dims[i] < 0,
+                  "Output dimension ", i, " is negative (", output_dims[i],
+                  "). This may occur from excessive negative padding/slicing.");
   }
 
   TensorShapeVector effective_input_extents;

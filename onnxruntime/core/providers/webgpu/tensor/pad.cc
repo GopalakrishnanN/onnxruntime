@@ -68,6 +68,9 @@ Status Pad::ComputeInternal(ComputeContext& context) const {
     int64_t upper_pad = (*p_pads)[i + dimension_count] + (*p_slices)[i + dimension_count];
     lower_pads[i] = static_cast<int32_t>(lower_pad);
     output_dims[i] += lower_pad + upper_pad;
+    ORT_RETURN_IF(output_dims[i] < 0,
+                  "Output dimension ", i, " is negative (", output_dims[i],
+                  "). This may occur from excessive negative padding/slicing.");
   }
   TensorShape output_shape(output_dims);
 
