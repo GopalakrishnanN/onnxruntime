@@ -1656,5 +1656,24 @@ TEST(PadOpTest, Pad_Reflect_SlicedExtentExceeded) {
   test.RunWithConfig();
 }
 
+// Excessive negative padding producing negative output dimension must fail
+TEST(PadOpTest, Pad_Constant_NegativeOutputDimFails) {
+  // Input shape {2, 3}, pads {0, 0, -5, 0}
+  // dim0: 2 + 0 + 0 = 2
+  // dim1: 3 + 0 + (-5) = -2 → negative, must fail at runtime
+  // Use pads as non-initializer so shape inference can't precompute and reject it first
+  OpTester test("Pad", 18);
+  test.AddInput<float>("data", {2, 3}, {1, 2, 3, 4, 5, 6});
+  test.AddInput<int64_t>("pads", {4}, {0, 0, -5, 0}, /*is_initializer=*/false);
+  test.AddInput<float>("constant_value", {}, {0.0f}, true);
+  // Dummy output shape — never reached because kernel fails first
+  test.AddOutput<float>("output", {2, 3}, {1, 2, 3, 4, 5, 6});
+  test.ConfigExcludeEps({kDmlExecutionProvider, kQnnExecutionProvider,
+                         kTensorrtExecutionProvider, kWebGpuExecutionProvider});
+  test.Config(OpTester::ExpectResult::kExpectFailure,
+              "is negative");
+  test.RunWithConfig();
+}
+
 }  // namespace test
 }  // namespace onnxruntime

@@ -910,5 +910,17 @@ TEST(SplitOperatorTest, Split3Inner) {
   do_test(splits);
 }
 
+// Negative values in runtime split tensor must be rejected
+TEST(SplitOperatorTest, NegativeSplitSizeFromInputFails) {
+  RunTest<float>(0, {-1, 7}, {{6}, {1, 2, 3, 4, 5, 6}},
+                 {{{2}, {1, 2}}, {{4}, {3, 4, 5, 6}}},
+                 {kTensorrtExecutionProvider},
+                 /*expect_failure=*/true,
+                 /*split_as_input=*/true,
+                 /*num_outputs=*/-1,
+                 /*is_initializer=*/false,
+                 /*err_msg=*/"Invalid value in 'split' input. All values must be >= 0");
+}
+
 }  // namespace test
 }  // namespace onnxruntime
