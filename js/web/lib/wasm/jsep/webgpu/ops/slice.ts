@@ -166,6 +166,11 @@ const createSliceProgramInfo = (inputs: readonly TensorView[], attributes: Slice
   const outputShape = inputShape.slice(0);
   axes.forEach((axis, _) => {
     outputShape[axis] = Math.ceil((ends[axis] - starts[axis]) / steps[axis]);
+    if (outputShape[axis] <= 0) {
+      throw new Error(
+        `Output dimension ${axis} is non-positive (${outputShape[axis]}). This may occur from excessive negative slicing.`,
+      );
+    }
   });
   const outputTensorInfo: TensorInfo = { dims: outputShape, dataType: inputs[0].dataType };
 

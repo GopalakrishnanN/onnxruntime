@@ -70,6 +70,11 @@ const createSliceProgramInfo = (
   const sliceOps: string[] = [];
   for (let i = 0; i < normalizedAxes.length; i++) {
     outputShape[normalizedAxes[i]] = ends[i] - starts[i];
+    if (outputShape[normalizedAxes[i]] <= 0) {
+      throw new Error(
+        `Output dimension ${normalizedAxes[i]} is non-positive (${outputShape[normalizedAxes[i]]}). This may occur from excessive negative slicing.`,
+      );
+    }
     if (starts[i] > 0) {
       sliceOps.push(`outputIdx[${normalizedAxes[i]}] += ${starts[i]};`);
     } // else { sliceOps.push(`outputIdx[${normalizedAxes[i]}] += 0;`); }
