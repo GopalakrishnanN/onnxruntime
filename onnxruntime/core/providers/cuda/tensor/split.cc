@@ -89,6 +89,9 @@ Status SplitKernel::PrepareForComputeLocal(const TensorShape& input_shape,
     if (split_size_sum == -1) {
       split_size_sum = std::accumulate(split_sizes.cbegin(), split_sizes.cend(), 0LL);
     }
+    ORT_RETURN_IF_NOT(std::all_of(split_sizes.cbegin(), split_sizes.cend(),
+                                  [](int64_t value) { return value >= 0; }),
+                      "Invalid value in 'split' input. All values must be >= 0");
     if (split_sizes.size() != static_cast<size_t>(num_outputs) || split_size_sum != split_dim_size) {
       return ORT_MAKE_STATUS(ONNXRUNTIME, FAIL,
                              "Cannot split using values in 'split' attribute. Axis=", axis_,
